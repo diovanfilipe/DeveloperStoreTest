@@ -8,9 +8,7 @@ public interface ISaleRepository
 
     Task<Sale?> GetByIdAsync(Guid saleId, CancellationToken cancellationToken);
 
-    Task<Sale?> GetByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken);
-
-    Task<Sale> CreateAsync(Sale sale, string idempotencyKey, CancellationToken cancellationToken);
+    Task<Sale> CreateAsync(Sale sale, CancellationToken cancellationToken);
 
     Task UpdateAsync(Sale sale, CancellationToken cancellationToken);
 }

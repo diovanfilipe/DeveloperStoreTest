@@ -40,12 +40,6 @@ public sealed class DatabaseInitializer
                 FOREIGN KEY (sale_id) REFERENCES sales(id)
             );
 
-            CREATE TABLE IF NOT EXISTS idempotency_requests (
-                idempotency_key TEXT PRIMARY KEY,
-                sale_id TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                FOREIGN KEY (sale_id) REFERENCES sales(id)
-            );
             """;
 
         using var connection = _connectionProvider.CreateConnection();

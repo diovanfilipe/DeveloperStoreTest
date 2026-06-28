@@ -26,14 +26,7 @@ public sealed class SalesController : ControllerBase
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateSaleRequest request, CancellationToken cancellationToken)
     {
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out var idempotencyKey) || string.IsNullOrWhiteSpace(idempotencyKey))
-        {
-            ModelState.AddModelError("Idempotency-Key", "Idempotency-Key header is required.");
-            return ValidationProblem(ModelState);
-        }
-
         var response = await _mediator.Send(new CreateSaleCommand(
-            idempotencyKey.ToString(),
             request.SaleDate,
             request.CustomerId,
             request.CustomerName,

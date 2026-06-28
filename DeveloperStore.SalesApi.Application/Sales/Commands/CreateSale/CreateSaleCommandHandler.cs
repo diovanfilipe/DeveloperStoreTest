@@ -20,12 +20,6 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
 
     public async Task<SaleDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
     {
-        var existingSale = await _saleRepository.GetByIdempotencyKeyAsync(request.IdempotencyKey, cancellationToken);
-        if (existingSale is not null)
-        {
-            return existingSale.ToDto();
-        }
-
         var sale = SaleHandlerSupport.BuildNewSale(
             request.SaleDate,
             request.CustomerId,
@@ -34,7 +28,7 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
             request.BranchName,
             request.Items);
 
-        var persistedSale = await _saleRepository.CreateAsync(sale, request.IdempotencyKey, cancellationToken);
+        var persistedSale = await _saleRepository.CreateAsync(sale, cancellationToken);
 
         await _eventPublisher.PublishAsync(
             "SaleCreated",

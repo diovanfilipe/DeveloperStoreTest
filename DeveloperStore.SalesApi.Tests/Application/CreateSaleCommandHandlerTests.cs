@@ -15,25 +15,6 @@ public sealed class CreateSaleCommandHandlerTests
     private readonly Mock<IEventPublisher> _eventPublisherMock = new();
     private readonly Mock<ISaleRepository> _saleRepositoryMock = new();
 
-    [Fact]
-    public async Task Handle_ShouldReturnExistingSale_WhenIdempotencyKeyAlreadyExists()
-    {
-        var existingSale = TestSaleFactory.CreateActiveSale();
-        var command = CreateCommand(quantity: 4, unitPrice: 10m);
-
-        _saleRepositoryMock
-            .Setup(repository => repository.GetByIdempotencyKeyAsync(command.IdempotencyKey, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingSale);
-
-        var handler = CreateHandler();
-
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.Id.Should().Be(existingSale.Id);
-        _saleRepositoryMock.Verify(repository => repository.CreateAsync(It.IsAny<Sale>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        _eventPublisherMock.Verify(publisher => publisher.PublishAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
     [Theory]
     [InlineData(3, 10, 0, 0, 30)]
     [InlineData(4, 10, 10, 4, 36)]
@@ -43,12 +24,8 @@ public sealed class CreateSaleCommandHandlerTests
         var command = CreateCommand(quantity, unitPrice);
 
         _saleRepositoryMock
-            .Setup(repository => repository.GetByIdempotencyKeyAsync(command.IdempotencyKey, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Sale?)null);
-
-        _saleRepositoryMock
-            .Setup(repository => repository.CreateAsync(It.IsAny<Sale>(), command.IdempotencyKey, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Sale sale, string _, CancellationToken _) => sale);
+            .Setup(repository => repository.CreateAsync(It.IsAny<Sale>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Sale sale, CancellationToken _) => sale);
 
         var handler = CreateHandler();
 
@@ -66,10 +43,6 @@ public sealed class CreateSaleCommandHandlerTests
     {
         var command = CreateCommand(quantity: 21, unitPrice: 10m);
 
-        _saleRepositoryMock
-            .Setup(repository => repository.GetByIdempotencyKeyAsync(command.IdempotencyKey, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Sale?)null);
-
         var handler = CreateHandler();
 
         var act = () => handler.Handle(command, CancellationToken.None);
@@ -86,7 +59,6 @@ public sealed class CreateSaleCommandHandlerTests
     private static CreateSaleCommand CreateCommand(int quantity, decimal unitPrice)
     {
         return new CreateSaleCommand(
-            "idem-key",
             DateTime.UtcNow,
             Guid.NewGuid(),
             "Customer",

@@ -80,32 +80,8 @@ public sealed class SaleRepository : ISaleRepository
         return MapSale(saleRow, itemRows);
     }
 
-    public async Task<Sale?> GetByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken)
+    public async Task<Sale> CreateAsync(Sale sale, CancellationToken cancellationToken)
     {
-        using var connection = _connectionProvider.CreateConnection();
-
-        var saleId = await connection.QuerySingleOrDefaultAsync<string?>(new CommandDefinition(
-            """
-            SELECT sale_id
-            FROM idempotency_requests
-            WHERE idempotency_key = @IdempotencyKey
-            """,
-            new { IdempotencyKey = idempotencyKey },
-            cancellationToken: cancellationToken));
-
-        return Guid.TryParse(saleId, out var parsedId)
-            ? await GetByIdAsync(parsedId, cancellationToken)
-            : null;
-    }
-
-    public async Task<Sale> CreateAsync(Sale sale, string idempotencyKey, CancellationToken cancellationToken)
-    {
-        var existingSale = await GetByIdempotencyKeyAsync(idempotencyKey, cancellationToken);
-        if (existingSale is not null)
-        {
-            return existingSale;
-        }
-
         using var connection = _connectionProvider.CreateConnection();
         using var transaction = connection.BeginTransaction();
 
@@ -133,20 +109,6 @@ public sealed class SaleRepository : ISaleRepository
         {
             await InsertItemAsync(connection, transaction, sale.Id, item, cancellationToken);
         }
-
-        await connection.ExecuteAsync(new CommandDefinition(
-            """
-            INSERT INTO idempotency_requests (idempotency_key, sale_id, created_at)
-            VALUES (@IdempotencyKey, @SaleId, @CreatedAt)
-            """,
-            new
-            {
-                IdempotencyKey = idempotencyKey,
-                SaleId = sale.Id.ToString(),
-                CreatedAt = DateTime.UtcNow
-            },
-            transaction,
-            cancellationToken: cancellationToken));
 
         transaction.Commit();
         return sale;
