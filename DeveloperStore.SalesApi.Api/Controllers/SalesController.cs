@@ -22,6 +22,7 @@ public sealed class SalesController : ControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>Registra uma nova venda.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateSaleRequest request, CancellationToken cancellationToken)
@@ -37,6 +38,7 @@ public sealed class SalesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
+    /// <summary>Listar todas as vendas.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(List<SaleDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -45,6 +47,7 @@ public sealed class SalesController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Obter uma venda pelo identificador.</summary>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
@@ -53,6 +56,7 @@ public sealed class SalesController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Atualizar uma venda ativa.</summary>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSaleRequest request, CancellationToken cancellationToken)
@@ -69,6 +73,7 @@ public sealed class SalesController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Cancelar uma venda ativa.</summary>
     [HttpPatch("{id:guid}/cancel")]
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
@@ -77,6 +82,7 @@ public sealed class SalesController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Cancelar um item de uma venda ativa.</summary>
     [HttpPatch("{saleId:guid}/items/{itemId:guid}/cancel")]
     [ProducesResponseType(typeof(SaleDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> CancelItem(Guid saleId, Guid itemId, CancellationToken cancellationToken)
