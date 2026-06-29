@@ -1,9 +1,8 @@
 using DeveloperStore.SalesApi.Application.Abstractions;
-using DeveloperStore.SalesApi.Application.Common.Exceptions;
 using DeveloperStore.SalesApi.Application.Sales.Commands.CreateSale;
 using DeveloperStore.SalesApi.Application.Sales.Dtos;
 using DeveloperStore.SalesApi.Domain.Entities;
-using DeveloperStore.SalesApi.Domain.Enums;
+using DeveloperStore.SalesApi.Domain.Exceptions;
 using DeveloperStore.SalesApi.Domain.Repositories;
 using FluentAssertions;
 using Moq;
@@ -47,7 +46,7 @@ public sealed class CreateSaleCommandHandlerTests
 
         var act = () => handler.Handle(command, CancellationToken.None);
 
-        await act.Should().ThrowAsync<BusinessRuleException>()
+        await act.Should().ThrowAsync<DomainRuleException>()
             .WithMessage("*above 20 identical items*");
     }
 

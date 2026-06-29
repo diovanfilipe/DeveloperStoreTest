@@ -1,8 +1,7 @@
 using DeveloperStore.SalesApi.Application.Abstractions;
-using DeveloperStore.SalesApi.Application.Common.Exceptions;
 using DeveloperStore.SalesApi.Application.Sales.Commands.CancelSale;
-using DeveloperStore.SalesApi.Domain.Entities;
 using DeveloperStore.SalesApi.Domain.Enums;
+using DeveloperStore.SalesApi.Domain.Exceptions;
 using DeveloperStore.SalesApi.Domain.Repositories;
 using FluentAssertions;
 using Moq;
@@ -37,7 +36,7 @@ public sealed class CancelSaleCommandHandlerTests
 
         var act = () => handler.Handle(new CancelSaleCommand(sale.Id), CancellationToken.None);
 
-        await act.Should().ThrowAsync<BusinessRuleException>()
+        await act.Should().ThrowAsync<DomainRuleException>()
             .WithMessage("*cannot be cancelled again*");
     }
 }

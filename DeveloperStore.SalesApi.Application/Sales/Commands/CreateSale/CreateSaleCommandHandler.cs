@@ -1,7 +1,7 @@
 using DeveloperStore.SalesApi.Application.Abstractions;
 using DeveloperStore.SalesApi.Application.Sales.Dtos;
 using DeveloperStore.SalesApi.Application.Sales.Mappings;
-using DeveloperStore.SalesApi.Application.Sales.Support;
+using DeveloperStore.SalesApi.Domain.Entities;
 using DeveloperStore.SalesApi.Domain.Repositories;
 using MediatR;
 
@@ -20,13 +20,13 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
 
     public async Task<SaleDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
     {
-        var sale = SaleHandlerSupport.BuildNewSale(
+        var sale = Sale.Create(
             request.SaleDate,
             request.CustomerId,
             request.CustomerName,
             request.BranchId,
             request.BranchName,
-            request.Items);
+            request.Items.Select(item => SaleItem.Create(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice)).ToList());
 
         var persistedSale = await _saleRepository.CreateAsync(sale, cancellationToken);
 

@@ -3,7 +3,7 @@ using DeveloperStore.SalesApi.Application.Common.Exceptions;
 using DeveloperStore.SalesApi.Application.Sales.Commands.UpdateSale;
 using DeveloperStore.SalesApi.Application.Sales.Dtos;
 using DeveloperStore.SalesApi.Domain.Entities;
-using DeveloperStore.SalesApi.Domain.Enums;
+using DeveloperStore.SalesApi.Domain.Exceptions;
 using DeveloperStore.SalesApi.Domain.Repositories;
 using FluentAssertions;
 using Moq;
@@ -78,7 +78,7 @@ public sealed class UpdateSaleCommandHandlerTests
 
         var act = () => handler.Handle(command, CancellationToken.None);
 
-        await act.Should().ThrowAsync<BusinessRuleException>()
+        await act.Should().ThrowAsync<DomainRuleException>()
             .WithMessage("*cannot be changed*");
     }
 }

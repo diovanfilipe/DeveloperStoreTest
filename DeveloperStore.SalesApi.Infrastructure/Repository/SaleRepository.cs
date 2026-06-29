@@ -203,29 +203,25 @@ public sealed class SaleRepository : ISaleRepository
 
     private static Sale MapSale(SaleRow saleRow, List<SaleItemRow> itemRows)
     {
-        return new Sale
-        {
-            Id = Guid.Parse(saleRow.Id),
-            SaleNumber = saleRow.SaleNumber,
-            SaleDate = saleRow.SaleDate,
-            CustomerId = Guid.Parse(saleRow.CustomerId),
-            CustomerName = saleRow.CustomerName,
-            BranchId = Guid.Parse(saleRow.BranchId),
-            BranchName = saleRow.BranchName,
-            Status = (SaleStatus)saleRow.Status,
-            TotalSaleAmount = saleRow.TotalSaleAmount,
-            Items = itemRows.Select(item => new SaleItem
-            {
-                Id = Guid.Parse(item.Id),
-                ProductId = Guid.Parse(item.ProductId),
-                ProductName = item.ProductName,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                DiscountPercent = item.DiscountPercent,
-                DiscountValue = item.DiscountValue,
-                TotalItemAmount = item.TotalItemAmount,
-                Status = (SaleStatus)item.Status
-            }).ToList()
-        };
+        return Sale.Rehydrate(
+            Guid.Parse(saleRow.Id),
+            saleRow.SaleNumber,
+            saleRow.SaleDate,
+            Guid.Parse(saleRow.CustomerId),
+            saleRow.CustomerName,
+            Guid.Parse(saleRow.BranchId),
+            saleRow.BranchName,
+            (SaleStatus)saleRow.Status,
+            itemRows.Select(item => SaleItem.Rehydrate(
+                Guid.Parse(item.Id),
+                Guid.Parse(item.ProductId),
+                item.ProductName,
+                item.Quantity,
+                item.UnitPrice,
+                item.DiscountPercent,
+                item.DiscountValue,
+                item.TotalItemAmount,
+                (SaleStatus)item.Status)).ToList(),
+            saleRow.TotalSaleAmount);
     }
 }

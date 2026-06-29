@@ -1,6 +1,6 @@
 using DeveloperStore.SalesApi.Application.Abstractions;
-using DeveloperStore.SalesApi.Application.Common.Exceptions;
 using DeveloperStore.SalesApi.Application.Sales.Commands.CancelSaleItem;
+using DeveloperStore.SalesApi.Domain.Exceptions;
 using DeveloperStore.SalesApi.Domain.Repositories;
 using FluentAssertions;
 using Moq;
@@ -32,7 +32,7 @@ public sealed class CancelSaleItemCommandHandlerTests
     public async Task Handle_ShouldThrow_WhenItemIsAlreadyCancelled()
     {
         var sale = TestSaleFactory.CreateActiveSale();
-        sale.Items[0].Status = Domain.Enums.SaleStatus.Cancelled;
+        sale.CancelItem(sale.Items[0].Id);
 
         _saleRepositoryMock.Setup(repository => repository.GetByIdAsync(sale.Id, It.IsAny<CancellationToken>())).ReturnsAsync(sale);
 
@@ -40,7 +40,7 @@ public sealed class CancelSaleItemCommandHandlerTests
 
         var act = () => handler.Handle(new CancelSaleItemCommand(sale.Id, sale.Items[0].Id), CancellationToken.None);
 
-        await act.Should().ThrowAsync<BusinessRuleException>()
+        await act.Should().ThrowAsync<DomainRuleException>()
             .WithMessage("*cannot be cancelled again*");
     }
 }
