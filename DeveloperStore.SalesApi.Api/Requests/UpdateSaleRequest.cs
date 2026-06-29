@@ -30,5 +30,5 @@ public sealed class UpdateSaleRequest
     /// <summary>Itens da venda.</summary>
     [Required]
     [MinLength(1)]
-    public List<CreateSaleItemRequest> Items { get; init; } = [];
+    public List<UpdateSaleItemRequest> Items { get; init; } = [];
 }

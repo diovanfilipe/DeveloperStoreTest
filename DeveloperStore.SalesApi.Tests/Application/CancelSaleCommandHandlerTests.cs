@@ -24,6 +24,24 @@ public sealed class CancelSaleCommandHandlerTests
         var result = await handler.Handle(new CancelSaleCommand(sale.Id), CancellationToken.None);
 
         result.Status.Should().Be(SaleStatus.Cancelled);
+        result.Items.Should().OnlyContain(item => item.Status == SaleStatus.Cancelled);
+        result.TotalSaleAmount.Should().Be(0m);
+
+        _saleRepositoryMock.Verify(repository => repository.UpdateAsync(sale, It.IsAny<CancellationToken>()), Times.Once);
+        _eventPublisherMock.Verify(
+            publisher => publisher.PublishAsync(
+                "SaleCancelled",
+                sale.Id,
+                It.Is<string>(message => message.Contains(sale.SaleNumber)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _eventPublisherMock.Verify(
+            publisher => publisher.PublishAsync(
+                "ItemCancelled",
+                sale.Id,
+                It.Is<string>(message => message.Contains(sale.SaleNumber)),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(sale.Items.Count));
     }
 
     [Fact]

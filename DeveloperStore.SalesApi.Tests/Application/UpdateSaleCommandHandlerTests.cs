@@ -19,6 +19,7 @@ public sealed class UpdateSaleCommandHandlerTests
     public async Task Handle_ShouldUpdateSale_WhenSaleIsActive()
     {
         var sale = TestSaleFactory.CreateActiveSale();
+        var existingItemId = sale.Items.First().Id;
         var command = new UpdateSaleCommand(
             sale.Id,
             DateTime.UtcNow,
@@ -26,7 +27,7 @@ public sealed class UpdateSaleCommandHandlerTests
             "Updated Customer",
             Guid.NewGuid(),
             "Updated Branch",
-            [new SaleItemInputDto(Guid.NewGuid(), "Updated Product", 4, 10m)]);
+            [new UpdateSaleItemInputDto(existingItemId, Guid.NewGuid(), "Updated Product", 4, 10m)]);
 
         _saleRepositoryMock
             .Setup(repository => repository.GetByIdAsync(sale.Id, It.IsAny<CancellationToken>()))
@@ -68,7 +69,7 @@ public sealed class UpdateSaleCommandHandlerTests
             "Customer",
             Guid.NewGuid(),
             "Branch",
-            [new SaleItemInputDto(Guid.NewGuid(), "Product", 4, 10m)]);
+            [new UpdateSaleItemInputDto(Guid.NewGuid(), Guid.NewGuid(), "Product", 4, 10m)]);
 
         _saleRepositoryMock
             .Setup(repository => repository.GetByIdAsync(sale.Id, It.IsAny<CancellationToken>()))

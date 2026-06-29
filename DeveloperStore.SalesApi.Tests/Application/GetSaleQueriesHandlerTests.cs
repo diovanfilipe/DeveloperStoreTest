@@ -27,7 +27,7 @@ public sealed class GetSaleQueriesHandlerTests
     public async Task GetById_ShouldThrow_WhenSaleDoesNotExist()
     {
         var repositoryMock = new Mock<ISaleRepository>();
-        repositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Domain.Entities.Sale?)null);
+        repositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((DeveloperStore.SalesApi.Domain.Entities.Sale?)null);
 
         var handler = new GetSaleByIdQueryHandler(repositoryMock.Object);
 

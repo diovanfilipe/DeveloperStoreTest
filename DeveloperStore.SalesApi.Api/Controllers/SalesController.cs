@@ -33,7 +33,7 @@ public sealed class SalesController : ControllerBase
             request.CustomerName,
             request.BranchId,
             request.BranchName,
-            request.Items.Select(MapItem).ToList()), cancellationToken);
+            request.Items.Select(MapCreateItem).ToList()), cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
@@ -68,7 +68,7 @@ public sealed class SalesController : ControllerBase
             request.CustomerName,
             request.BranchId,
             request.BranchName,
-            request.Items.Select(MapItem).ToList()), cancellationToken);
+            request.Items.Select(MapUpdateItem).ToList()), cancellationToken);
 
         return Ok(response);
     }
@@ -91,8 +91,13 @@ public sealed class SalesController : ControllerBase
         return Ok(response);
     }
 
-    private static SaleItemInputDto MapItem(CreateSaleItemRequest item)
+    private static SaleItemInputDto MapCreateItem(CreateSaleItemRequest item)
     {
         return new SaleItemInputDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice);
+    }
+
+    private static UpdateSaleItemInputDto MapUpdateItem(UpdateSaleItemRequest item)
+    {
+        return new UpdateSaleItemInputDto(item.ItemId, item.ProductId, item.ProductName, item.Quantity, item.UnitPrice);
     }
 }

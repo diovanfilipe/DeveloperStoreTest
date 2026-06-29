@@ -70,6 +70,18 @@ public sealed class SaleItem
         };
     }
 
+    public void Update(Guid productId, string productName, int quantity, decimal unitPrice)
+    {
+        Validate(productId, productName, quantity, unitPrice);
+
+        ProductId = productId;
+        ProductName = productName.Trim();
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+
+        Recalculate();
+    }
+
     public void Cancel()
     {
         if (Status == SaleStatus.Cancelled)

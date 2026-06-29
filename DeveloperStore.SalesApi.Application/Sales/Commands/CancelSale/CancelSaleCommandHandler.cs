@@ -26,7 +26,7 @@ public sealed class CancelSaleCommandHandler : IRequestHandler<CancelSaleCommand
             throw new NotFoundException("Sale was not found.");
         }
 
-        sale.Cancel();
+        var cancelledItems = sale.Cancel();
         await _saleRepository.UpdateAsync(sale, cancellationToken);
 
         await _eventPublisher.PublishAsync(
@@ -34,6 +34,15 @@ public sealed class CancelSaleCommandHandler : IRequestHandler<CancelSaleCommand
             sale.Id,
             $"Sale {sale.SaleNumber} cancelled.",
             cancellationToken);
+
+        foreach (var cancelledItem in cancelledItems)
+        {
+            await _eventPublisher.PublishAsync(
+                "ItemCancelled",
+                sale.Id,
+                $"Item {cancelledItem.Id} cancelled from sale {sale.SaleNumber}.",
+                cancellationToken);
+        }
 
         return sale.ToDto();
     }

@@ -33,7 +33,12 @@ public sealed class UpdateSaleCommandHandler : IRequestHandler<UpdateSaleCommand
             request.CustomerName,
             request.BranchId,
             request.BranchName,
-            request.Items.Select(item => SaleItem.Create(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice)).ToList());
+            request.Items.Select(item => (
+                item.ItemId,
+                item.ProductId,
+                item.ProductName,
+                item.Quantity,
+                item.UnitPrice)).ToList());
 
         await _saleRepository.UpdateAsync(existingSale, cancellationToken);
 

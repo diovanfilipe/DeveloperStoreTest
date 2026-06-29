@@ -10,4 +10,4 @@ public sealed record UpdateSaleCommand(
     string CustomerName,
     Guid BranchId,
     string BranchName,
-    List<SaleItemInputDto> Items) : IRequest<SaleDto>;
+    List<UpdateSaleItemInputDto> Items) : IRequest<SaleDto>;

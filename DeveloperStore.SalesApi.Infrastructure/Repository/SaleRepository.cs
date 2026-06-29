@@ -245,7 +245,6 @@ public sealed class SaleRepository : ISaleRepository
                 item.DiscountPercent,
                 item.DiscountValue,
                 item.TotalItemAmount,
-                (SaleStatus)item.Status)).ToList(),
-            saleRow.TotalSaleAmount);
+                (SaleStatus)item.Status)).ToList());
     }
 }

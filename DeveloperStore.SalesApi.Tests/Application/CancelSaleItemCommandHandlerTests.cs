@@ -24,7 +24,7 @@ public sealed class CancelSaleItemCommandHandlerTests
 
         var result = await handler.Handle(new CancelSaleItemCommand(sale.Id, itemId), CancellationToken.None);
 
-        result.Items.First(item => item.Id == itemId).Status.Should().Be(Domain.Enums.SaleStatus.Cancelled);
+        result.Items.First(item => item.Id == itemId).Status.Should().Be(DeveloperStore.SalesApi.Domain.Enums.SaleStatus.Cancelled);
         result.TotalSaleAmount.Should().Be(20m);
     }
 

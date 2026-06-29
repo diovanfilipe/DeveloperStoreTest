@@ -37,10 +37,10 @@ public sealed class Sale
         string customerName,
         Guid branchId,
         string branchName,
-        List<SaleItem> items,
+        IReadOnlyCollection<SaleItem> items,
         int saleSequence = 1)
     {
-        Validate(saleDate, customerId, customerName, branchId, branchName, items, saleSequence);
+        ValidateCreation(saleDate, customerId, customerName, branchId, branchName, items, saleSequence);
 
         var sale = new Sale
         {
@@ -68,8 +68,7 @@ public sealed class Sale
         Guid branchId,
         string branchName,
         SaleStatus status,
-        List<SaleItem> items,
-        decimal totalSaleAmount)
+        IReadOnlyCollection<SaleItem> items)
     {
         var sale = new Sale
         {
@@ -81,10 +80,11 @@ public sealed class Sale
             BranchId = branchId,
             BranchName = branchName,
             Status = status,
-            TotalSaleAmount = totalSaleAmount
+            TotalSaleAmount = 0m
         };
 
         sale._items.AddRange(items);
+        sale.RecalculateTotal();
         return sale;
     }
 
@@ -94,10 +94,10 @@ public sealed class Sale
         string customerName,
         Guid branchId,
         string branchName,
-        List<SaleItem> items)
+        IReadOnlyCollection<(Guid? ItemId, Guid ProductId, string ProductName, int Quantity, decimal UnitPrice)> items)
     {
         EnsureActive();
-        Validate(saleDate, customerId, customerName, branchId, branchName, items);
+        ValidateUpdate(saleDate, customerId, customerName, branchId, branchName, items);
 
         SaleDate = saleDate;
         CustomerId = customerId;
@@ -105,19 +105,56 @@ public sealed class Sale
         BranchId = branchId;
         BranchName = branchName.Trim();
 
+        var itemsById = _items.ToDictionary(item => item.Id, item => item);
+        var updatedItems = new List<SaleItem>();
+        var processedItemIds = new HashSet<Guid>();
+
+        foreach (var incomingItem in items)
+        {
+            if (incomingItem.ItemId is Guid itemId && itemId != Guid.Empty)
+            {
+                if (!processedItemIds.Add(itemId))
+                {
+                    throw new DomainRuleException("Sale item identifier cannot be repeated.");
+                }
+
+                if (!itemsById.TryGetValue(itemId, out var existingItem))
+                {
+                    throw new DomainRuleException("Sale item was not found.");
+                }
+
+                existingItem.Update(incomingItem.ProductId, incomingItem.ProductName, incomingItem.Quantity, incomingItem.UnitPrice);
+                updatedItems.Add(existingItem);
+            }
+            else
+            {
+                updatedItems.Add(SaleItem.Create(incomingItem.ProductId, incomingItem.ProductName, incomingItem.Quantity, incomingItem.UnitPrice));
+            }
+        }
+
         _items.Clear();
-        _items.AddRange(items);
+        _items.AddRange(updatedItems);
         RecalculateTotal();
     }
 
-    public void Cancel()
+    public IReadOnlyCollection<SaleItem> Cancel()
     {
         if (Status == SaleStatus.Cancelled)
         {
             throw new DomainRuleException("Cancelled sale cannot be cancelled again.");
         }
 
+        var cancelledItems = new List<SaleItem>();
+        foreach (var item in _items.Where(currentItem => currentItem.Status == SaleStatus.Active))
+        {
+            item.Cancel();
+            cancelledItems.Add(item);
+        }
+
+        RecalculateTotal();
         Status = SaleStatus.Cancelled;
+
+        return cancelledItems;
     }
 
     public void CancelItem(Guid itemId)
@@ -134,7 +171,7 @@ public sealed class Sale
         RecalculateTotal();
     }
 
-    public void RecalculateTotal()
+    private void RecalculateTotal()
     {
         TotalSaleAmount = _items
             .Where(item => item.Status == SaleStatus.Active)
@@ -149,13 +186,13 @@ public sealed class Sale
         }
     }
 
-    private static void Validate(
+    private static void ValidateCreation(
         DateTime saleDate,
         Guid customerId,
         string customerName,
         Guid branchId,
         string branchName,
-        List<SaleItem> items,
+        IReadOnlyCollection<SaleItem> items,
         int saleSequence = 1)
     {
         if (saleDate == default)
@@ -196,6 +233,50 @@ public sealed class Sale
         if (saleSequence <= 0)
         {
             throw new DomainRuleException("Sale sequence must be greater than zero.");
+        }
+    }
+
+    private static void ValidateUpdate(
+        DateTime saleDate,
+        Guid customerId,
+        string customerName,
+        Guid branchId,
+        string branchName,
+        IReadOnlyCollection<(Guid? ItemId, Guid ProductId, string ProductName, int Quantity, decimal UnitPrice)> items)
+    {
+        if (saleDate == default)
+        {
+            throw new DomainRuleException("Sale date is required.");
+        }
+
+        if (saleDate > DateTime.UtcNow)
+        {
+            throw new DomainRuleException("Sale date cannot be greater than the current date.");
+        }
+
+        if (customerId == Guid.Empty)
+        {
+            throw new DomainRuleException("CustomerId is required.");
+        }
+
+        if (branchId == Guid.Empty)
+        {
+            throw new DomainRuleException("BranchId is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(customerName))
+        {
+            throw new DomainRuleException("CustomerName is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(branchName))
+        {
+            throw new DomainRuleException("BranchName is required.");
+        }
+
+        if (items.Count == 0)
+        {
+            throw new DomainRuleException("Sale must contain at least one item.");
         }
     }
 
