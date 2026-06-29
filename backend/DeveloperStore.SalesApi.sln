@@ -1,17 +1,17 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Api", "DeveloperStore.SalesApi.Api\DeveloperStore.SalesApi.Api.csproj", "{CE5019DB-EAE5-47FD-BE7C-220172063E22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Api", "src\DeveloperStore.SalesApi.Api\DeveloperStore.SalesApi.Api.csproj", "{CE5019DB-EAE5-47FD-BE7C-220172063E22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Application", "DeveloperStore.SalesApi.Application\DeveloperStore.SalesApi.Application.csproj", "{9CFE15E5-137A-494E-B57E-0E81ACCBDA02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Application", "src\DeveloperStore.SalesApi.Application\DeveloperStore.SalesApi.Application.csproj", "{9CFE15E5-137A-494E-B57E-0E81ACCBDA02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Domain", "DeveloperStore.SalesApi.Domain\DeveloperStore.SalesApi.Domain.csproj", "{10A2D328-22FC-4489-B104-A33D1D90FD4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Domain", "src\DeveloperStore.SalesApi.Domain\DeveloperStore.SalesApi.Domain.csproj", "{10A2D328-22FC-4489-B104-A33D1D90FD4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Infrastructure", "DeveloperStore.SalesApi.Infrastructure\DeveloperStore.SalesApi.Infrastructure.csproj", "{13380720-2102-4224-966C-AC8982E4FA0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Infrastructure", "src\DeveloperStore.SalesApi.Infrastructure\DeveloperStore.SalesApi.Infrastructure.csproj", "{13380720-2102-4224-966C-AC8982E4FA0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Tests", "DeveloperStore.SalesApi.Tests\DeveloperStore.SalesApi.Tests.csproj", "{169CB9A6-2FC8-43BC-AAAD-98F1514817AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveloperStore.SalesApi.Tests", "src\DeveloperStore.SalesApi.Tests\DeveloperStore.SalesApi.Tests.csproj", "{169CB9A6-2FC8-43BC-AAAD-98F1514817AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
