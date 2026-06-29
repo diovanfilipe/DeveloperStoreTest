@@ -23,6 +23,10 @@ public sealed class CreateSaleCommandHandlerTests
         var command = CreateCommand(quantity, unitPrice);
 
         _saleRepositoryMock
+            .Setup(repository => repository.GetNextSaleSequenceAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        _saleRepositoryMock
             .Setup(repository => repository.CreateAsync(It.IsAny<Sale>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Sale sale, CancellationToken _) => sale);
 

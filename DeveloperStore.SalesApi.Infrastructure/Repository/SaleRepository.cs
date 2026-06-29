@@ -80,6 +80,30 @@ public sealed class SaleRepository : ISaleRepository
         return MapSale(saleRow, itemRows);
     }
 
+    public async Task<int> GetNextSaleSequenceAsync(DateTime saleDate, CancellationToken cancellationToken)
+    {
+        using var connection = _connectionProvider.CreateConnection();
+
+        var start = saleDate.Date;
+        var end = start.AddDays(1);
+
+        var count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            """
+            SELECT COUNT(1)
+            FROM sales
+            WHERE sale_date >= @Start
+              AND sale_date < @End
+            """,
+            new
+            {
+                Start = start,
+                End = end
+            },
+            cancellationToken: cancellationToken));
+
+        return count + 1;
+    }
+
     public async Task<Sale> CreateAsync(Sale sale, CancellationToken cancellationToken)
     {
         using var connection = _connectionProvider.CreateConnection();
@@ -203,7 +227,7 @@ public sealed class SaleRepository : ISaleRepository
 
     private static Sale MapSale(SaleRow saleRow, List<SaleItemRow> itemRows)
     {
-        return Sale.Rehydrate(
+        return Sale.Restore(
             Guid.Parse(saleRow.Id),
             saleRow.SaleNumber,
             saleRow.SaleDate,
@@ -212,7 +236,7 @@ public sealed class SaleRepository : ISaleRepository
             Guid.Parse(saleRow.BranchId),
             saleRow.BranchName,
             (SaleStatus)saleRow.Status,
-            itemRows.Select(item => SaleItem.Rehydrate(
+            itemRows.Select(item => SaleItem.Restore(
                 Guid.Parse(item.Id),
                 Guid.Parse(item.ProductId),
                 item.ProductName,

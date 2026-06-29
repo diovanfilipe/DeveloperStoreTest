@@ -8,6 +8,8 @@ public interface ISaleRepository
 
     Task<Sale?> GetByIdAsync(Guid saleId, CancellationToken cancellationToken);
 
+    Task<int> GetNextSaleSequenceAsync(DateTime saleDate, CancellationToken cancellationToken);
+
     Task<Sale> CreateAsync(Sale sale, CancellationToken cancellationToken);
 
     Task UpdateAsync(Sale sale, CancellationToken cancellationToken);

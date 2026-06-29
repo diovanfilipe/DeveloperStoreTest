@@ -1,14 +1,18 @@
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
 
 namespace DeveloperStore.SalesApi.Infrastructure.Repository;
 
 public sealed class SqliteConnectionProvider : IDisposable
 {
-    private readonly string _connectionString = "Data Source=DeveloperStoreSales;Mode=Memory;Cache=Shared";
+    private readonly string _connectionString;
     private readonly SqliteConnection _keepAliveConnection;
 
-    public SqliteConnectionProvider()
+    public SqliteConnectionProvider(IConfiguration configuration)
     {
+        _connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection was not configured.");
+
         _keepAliveConnection = new SqliteConnection(_connectionString);
         _keepAliveConnection.Open();
     }

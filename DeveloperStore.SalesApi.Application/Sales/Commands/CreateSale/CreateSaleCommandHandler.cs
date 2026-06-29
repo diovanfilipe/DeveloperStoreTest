@@ -20,13 +20,20 @@ public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand
 
     public async Task<SaleDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
     {
+        var saleSequence = await _saleRepository.GetNextSaleSequenceAsync(request.SaleDate, cancellationToken);
+        if (saleSequence <= 0)
+        {
+            saleSequence = 1;
+        }
+
         var sale = Sale.Create(
             request.SaleDate,
             request.CustomerId,
             request.CustomerName,
             request.BranchId,
             request.BranchName,
-            request.Items.Select(item => SaleItem.Create(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice)).ToList());
+            request.Items.Select(item => SaleItem.Create(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice)).ToList(),
+            saleSequence);
 
         var persistedSale = await _saleRepository.CreateAsync(sale, cancellationToken);
 

@@ -45,7 +45,7 @@ public sealed class SaleItem
         return item;
     }
 
-    public static SaleItem Rehydrate(
+    public static SaleItem Restore(
         Guid id,
         Guid productId,
         string productName,

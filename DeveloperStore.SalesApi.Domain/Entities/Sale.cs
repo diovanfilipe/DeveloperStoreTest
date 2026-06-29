@@ -29,7 +29,7 @@ public sealed class Sale
 
     public decimal TotalSaleAmount { get; private set; }
 
-    public List<SaleItem> Items => _items;
+    public IReadOnlyCollection<SaleItem> Items => _items;
 
     public static Sale Create(
         DateTime saleDate,
@@ -37,16 +37,15 @@ public sealed class Sale
         string customerName,
         Guid branchId,
         string branchName,
-        List<SaleItem> items)
+        List<SaleItem> items,
+        int saleSequence = 1)
     {
-        Validate(saleDate, customerId, customerName, branchId, branchName, items);
-
-        var saleId = Guid.NewGuid();
+        Validate(saleDate, customerId, customerName, branchId, branchName, items, saleSequence);
 
         var sale = new Sale
         {
-            Id = saleId,
-            SaleNumber = saleId.ToString("N"),
+            Id = Guid.NewGuid(),
+            SaleNumber = GenerateSaleNumber(saleDate, saleSequence),
             SaleDate = saleDate,
             CustomerId = customerId,
             CustomerName = customerName.Trim(),
@@ -60,7 +59,7 @@ public sealed class Sale
         return sale;
     }
 
-    public static Sale Rehydrate(
+    public static Sale Restore(
         Guid id,
         string saleNumber,
         DateTime saleDate,
@@ -156,11 +155,17 @@ public sealed class Sale
         string customerName,
         Guid branchId,
         string branchName,
-        List<SaleItem> items)
+        List<SaleItem> items,
+        int saleSequence = 1)
     {
         if (saleDate == default)
         {
             throw new DomainRuleException("Sale date is required.");
+        }
+
+        if (saleDate > DateTime.UtcNow)
+        {
+            throw new DomainRuleException("Sale date cannot be greater than the current date.");
         }
 
         if (customerId == Guid.Empty)
@@ -187,5 +192,15 @@ public sealed class Sale
         {
             throw new DomainRuleException("Sale must contain at least one item.");
         }
+
+        if (saleSequence <= 0)
+        {
+            throw new DomainRuleException("Sale sequence must be greater than zero.");
+        }
+    }
+
+    private static string GenerateSaleNumber(DateTime saleDate, int saleSequence)
+    {
+        return $"SALE-{saleDate:yyyyMMdd}-{saleSequence:D6}";
     }
 }

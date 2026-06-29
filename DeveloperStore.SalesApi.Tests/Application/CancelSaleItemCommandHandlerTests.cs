@@ -32,13 +32,14 @@ public sealed class CancelSaleItemCommandHandlerTests
     public async Task Handle_ShouldThrow_WhenItemIsAlreadyCancelled()
     {
         var sale = TestSaleFactory.CreateActiveSale();
-        sale.CancelItem(sale.Items[0].Id);
+        var itemId = sale.Items.First().Id;
+        sale.CancelItem(itemId);
 
         _saleRepositoryMock.Setup(repository => repository.GetByIdAsync(sale.Id, It.IsAny<CancellationToken>())).ReturnsAsync(sale);
 
         var handler = new CancelSaleItemCommandHandler(_saleRepositoryMock.Object, _eventPublisherMock.Object);
 
-        var act = () => handler.Handle(new CancelSaleItemCommand(sale.Id, sale.Items[0].Id), CancellationToken.None);
+        var act = () => handler.Handle(new CancelSaleItemCommand(sale.Id, itemId), CancellationToken.None);
 
         await act.Should().ThrowAsync<DomainRuleException>()
             .WithMessage("*cannot be cancelled again*");
